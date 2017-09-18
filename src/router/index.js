@@ -21,10 +21,10 @@ export const constantRouterMap = [
   {
     path: '/',
     component: Layout,
-    redirect: '/dashboard',
-    name: 'Dashboard',
+    redirect: '/devmng',
+    name: '设备管理',
     hidden: true,
-    children: [{ path: 'dashboard', component: _import('dashboard/index') }]
+    children: [{ path: 'devmng', component: _import('devmng/index') }]
   }
 ]
 
@@ -36,24 +36,20 @@ export default new Router({
 
 export const asyncRouterMap = [
   {
-    path: '/example',
+    path: '/devmng',
     component: Layout,
-    redirect: 'noredirect',
-    name: 'Example',
+    redirect: '/devmng/index',
     icon: 'zujian',
-    children: [
-      { path: 'index', name: 'Form', icon: 'zonghe', component: _import('page/form') }
-    ]
-  },
-
-  {
-    path: '/table',
-    component: Layout,
-    redirect: '/table/index',
-    icon: 'tubiao',
     noDropdown: true,
-    children: [{ path: 'index', name: 'Table', component: _import('table/index'), meta: { role: ['admin'] }}]
+    children: [{ path: 'index', name: '设备管理', component: _import('devmng/index')}]
   },
-
+  {
+    path: '/points',
+    component: Layout,
+    redirect: '/points/index',
+    icon: 'zonghe',
+    noDropdown: true,
+    children: [{ path: 'index', name: '资源点管理', component: _import('points/index')}]
+  },
   { path: '*', redirect: '/404', hidden: true }
 ]

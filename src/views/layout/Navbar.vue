@@ -2,6 +2,7 @@
   <el-menu class="navbar" mode="horizontal">
     <hamburger class="hamburger-container" :toggleClick="toggleSideBar" :isActive="sidebar.opened"></hamburger>
     <levelbar></levelbar>
+    <screenfull class='screenfull'></screenfull>
     <el-dropdown class="avatar-container" trigger="click">
       <div class="avatar-wrapper">
         <img class="user-avatar" :src="avatar+'?imageView2/1/w/80/h/80'">
@@ -10,7 +11,7 @@
       <el-dropdown-menu class="user-dropdown" slot="dropdown">
         <router-link class='inlineBlock' to="/">
           <el-dropdown-item>
-            Home
+            主页
           </el-dropdown-item>
         </router-link>
         <el-dropdown-item divided><span @click="logout" style="display:block;">LogOut</span></el-dropdown-item>
@@ -23,11 +24,13 @@
 import { mapGetters } from 'vuex'
 import Levelbar from './Levelbar'
 import Hamburger from '@/components/Hamburger'
+import Screenfull from '@/components/Screenfull'
 
 export default {
   components: {
     Levelbar,
-    Hamburger
+    Hamburger,
+    Screenfull
   },
   computed: {
     ...mapGetters([
