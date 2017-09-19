@@ -14,17 +14,17 @@
         <el-button type="primary" @click="OnDel">删除</el-button>
       </el-button-group>
       <el-table :data="data_tb" border style="width: 100%">
-        <el-table-column prop="lable" label="标签">
+        <el-table-column prop="lable" label="标签" show-overflow-tooltip>
         </el-table-column>
-        <el-table-column prop="name" label="名称">
+        <el-table-column prop="name" label="名称" show-overflow-tooltip>
         </el-table-column>
-        <el-table-column prop="address" label="地址">
+        <el-table-column prop="address" label="地址" show-overflow-tooltip>
         </el-table-column>
         <el-table-column prop="state" label="状态">
         </el-table-column>
         <el-table-column prop="v_type" label="类型">
         </el-table-column>
-        <el-table-column prop="value" label="值">
+        <el-table-column prop="value" label="值" show-overflow-tooltip>
         </el-table-column>
         <el-table-column prop="times" label="时间戳" width="200">
         </el-table-column>

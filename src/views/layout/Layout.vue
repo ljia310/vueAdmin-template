@@ -6,6 +6,7 @@
     <div class="main-container">
       <navbar></navbar>
       <app-main></app-main>
+    <back-to-top transitionName="fade" :customStyle="myBackToTopStyle" :visibilityHeight="300" :backPosition="50"></back-to-top>
     </div>
   </div>
 </template>
@@ -13,17 +14,32 @@
 
 <script>
 import { Navbar, Sidebar, AppMain } from '@/views/layout'
+import BackToTop from '@/components/BackToTop'
 
 export default {
   name: 'layout',
   components: {
     Navbar,
     Sidebar,
-    AppMain
+    AppMain,
+    BackToTop
   },
   computed: {
     sidebar() {
       return this.$store.state.app.sidebar
+    }
+  },
+  data() {
+    return {
+      myBackToTopStyle: {
+        right: '50px',
+        bottom: '50px',
+        width: '40px',
+        height: '40px',
+        'border-radius': '4px',
+        'line-height': '45px', // 请保持与高度一致以垂直居中
+        background: '#e7eaf1'// 按钮的背景颜色
+      }
     }
   }
 }
