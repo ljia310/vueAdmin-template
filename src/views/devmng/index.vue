@@ -128,7 +128,7 @@ export default {
         this.data_tree = convertTreeData(tree, attributes);
       }
     }).catch((err) => {
-      Message({
+      this.$message({
         message: err.message,
         type: 'error',
         duration: 5 * 1000
@@ -180,7 +180,7 @@ export default {
           }
         }
       }).catch((err) => {
-        Message({
+        this.$message({
           message: err.message,
           type: 'error',
           duration: 5 * 1000
@@ -211,12 +211,14 @@ export default {
         }
         this.loading = false;
       }).catch((err) => {
-        this.loading = false;
-        Message({
+      this.scan_dialogVisible = false;
+      this.loading = false;
+       this.$message({
           message: err.message,
           type: 'error',
           duration: 5 * 1000
         });
+        
       });
     },
     OnDevAdd() {
