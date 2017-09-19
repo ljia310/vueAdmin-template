@@ -41,7 +41,7 @@
         </el-table-column>
       </el-table>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="scan_dialogVisible = false">取 消</el-button>
+        <el-button @click="loading=false;scan_dialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="OnDevAdd()" v-show="loading==false">添 加</el-button>
       </span>
     </el-dialog>
@@ -162,7 +162,6 @@ export default {
       grp.descr = '';
       grp.name = this.grp_input;
       addGroupReq(grp).then((response) => {
-        alert(JSON.stringify(response));
         if (response.data.code != 0) {
           this.$message({
             message: response.data.msg,
@@ -195,12 +194,22 @@ export default {
       this.cur_data_tree = data;
     },
     OnScan() {
-      this.loading = true;
       this.scan_tb = null;
       this.scan_dialogVisible = true;
-      rtscan('1', '3000').then((response) => {
+      this.loading = true;
+      rtscan('1', '30000').then((response) => {
         try {
+        if(response.data instanceof Array ){
           this.scan_tb = response.data;
+        }else{
+          this.$message({
+            message: response.data.msg,
+            showClose: true,
+            duration: 2 * 1000,
+            type: 'error'
+          });
+        }
+          
         } catch (e) {
           this.$message({
             message: e.message,
