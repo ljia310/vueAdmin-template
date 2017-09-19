@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-col :span="4">
+    <el-col :span="6">
       <el-button-group style="margin-bottom:5px;">
         <el-button type="primary" @click="OnAdd">新增</el-button>
         <el-button type="primary" @click="OnDel">修改</el-button>
@@ -8,7 +8,7 @@
       </el-button-group>
       <el-tree node-key="id" :data="data_tree" :props="defaultProps" :render-content="tree_renderContent" @node-click="handleNodeClick" style="width: 98%"></el-tree>
     </el-col>
-    <el-col :span="20">
+    <el-col :span="18">
       <el-button-group style="margin-bottom:5px;">
         <el-button type="primary" @click="OnAdd">新增</el-button>
         <el-button type="primary" @click="OnDel">删除</el-button>
