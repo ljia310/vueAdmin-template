@@ -1,5 +1,4 @@
 import axios from 'axios'
-import { Message } from 'element-ui'
 
 var BaseURL = 'http://127.0.0.1';
 export function rtscan(company, timeout) {
