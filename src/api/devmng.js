@@ -19,3 +19,20 @@ export function addGroupReq(obj) {
         data:obj
     });
 }
+
+export function updateGroupReq(obj) {
+    var url = BaseURL + '/group/update';
+    return axios({
+        method:"POST",
+        url:url,
+        data:obj
+    });
+}
+
+export function delGroupReq(id) {
+    var url = BaseURL + '/group/del/' + id;
+    return axios({
+        method:"POST",
+        url:url
+    });
+}

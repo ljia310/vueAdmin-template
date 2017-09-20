@@ -1,6 +1,6 @@
 <template>
-  <div class="app-container">
-    <el-col :span="6">
+  <div class="app-container" style="margin-bottom:5px;margin-left:-15px;margin-top:-15px;">
+    <el-col :span="4">
       <el-button-group style="margin-bottom:5px;">
         <el-button type="primary" @click="OnAdd">新增</el-button>
         <el-button type="primary" @click="OnDel">修改</el-button>
@@ -8,12 +8,12 @@
       </el-button-group>
       <el-tree node-key="id" :data="data_tree" :props="defaultProps" :render-content="tree_renderContent" @node-click="handleNodeClick" style="width: 98%"></el-tree>
     </el-col>
-    <el-col :span="18">
+    <el-col :span="20">
       <el-button-group style="margin-bottom:5px;">
         <el-button type="primary" @click="OnAdd">新增</el-button>
         <el-button type="primary" @click="OnDel">删除</el-button>
       </el-button-group>
-      <el-table :data="data_tb" border style="width: 100%">
+      <el-table :data="data_tb" border >
         <el-table-column prop="lable" label="标签" show-overflow-tooltip>
         </el-table-column>
         <el-table-column prop="name" label="名称" show-overflow-tooltip>
@@ -22,7 +22,7 @@
         </el-table-column>
         <el-table-column prop="state" label="状态">
         </el-table-column>
-        <el-table-column prop="v_type" label="类型">
+        <el-table-column prop="v_type" label="类型" >
         </el-table-column>
         <el-table-column prop="value" label="值" show-overflow-tooltip>
         </el-table-column>

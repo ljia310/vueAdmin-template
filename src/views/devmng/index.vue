@@ -1,9 +1,9 @@
 <template>
-  <div class="app-container">
-    <el-col :span="6">
+  <div class="app-container" style="margin-top:-15px;">
+    <el-col :span="4" style="margin-bottom:5px;margin-left:-15px;">
       <el-button-group style="margin-bottom:5px;">
-        <el-button type="primary" @click="OnAddGrp()">新增</el-button>
-        <el-button type="primary" @click="OnEditGrp()">修改</el-button>
+        <el-button type="primary" @click="grp_dialog_title = '新增组织';grp_input = null;grp_oper_type = 0;grp_dialogVisible = true">新增</el-button>
+        <el-button type="primary" @click="grp_dialog_title = '修改组织:'+cur_data_tree.label;grp_input = cur_data_tree.label;grp_oper_type = 1;grp_dialogVisible = true;">修改</el-button>
         <el-button type="primary" @click="OnDel">删除</el-button>
       </el-button-group>
       <el-tree node-key="id" :data="data_tree" :props="defaultProps" @node-click="onCur_data_tree" highlight-current style="width: 98%"></el-tree>
@@ -12,7 +12,7 @@
       <el-button-group style="margin-bottom:5px;">
         <el-button type="primary" @click="OnScan">设备扫描</el-button>
       </el-button-group>
-      <el-table :data="data_tb" border style="width: 100%">
+      <el-table :data="data_tb" border>
         <el-table-column prop="rt_id" label="序列号">
         </el-table-column>
         <el-table-column prop="dev_type" label="设备类型">
@@ -54,29 +54,31 @@
       </span>
     </el-dialog>
 
-    <el-dialog title="新增组织" :visible.sync="grp_dialogVisible" size="small" :before-close="handleClose">
-      <h5>父节点: {{cur_data_tree != null? cur_data_tree.label:'根节点'}} </h5>
-      <br>
+    <el-dialog :title="grp_dialog_title" :visible.sync="grp_dialogVisible" size="small" :before-close="handleClose">
+      <h4 v-if="grp_oper_type==0">父节点: {{cur_data_tree != null? cur_data_tree.label:'根节点'}} </h4>
+      <el-checkbox v-if="grp_oper_type==0" v-model="is_root_tree">根节点</el-checkbox>
       <el-input v-model="grp_input" placeholder="请输入组织名称"></el-input>
       <span slot="footer" class="dialog-footer">
         <el-button @click="grp_dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="AddGrpReq()">确 认</el-button>
+        <el-button type="primary" @click="OnHandGrp()">确 认</el-button>
       </span>
     </el-dialog>
 
   </div>
 </template>
 <script>
-import { rtscan, getGroup, addGroupReq } from '@/api/devmng'
-import { convertTreeData } from '@/utils/json2tree'
-let id = 1000;
+import { rtscan, getGroup, addGroupReq, updateGroupReq, delGroupReq } from '@/api/devmng'
+import { convert_tree_raw_data2tree,add_tree_raw_data,edit_tree_raw_data,del_tree_raw_data } from '@/utils/json2tree'
 export default {
   data() {
     return {
+      is_root_tree:false,
       loading: true,
       scan_dialogVisible: false,
       tree_dialogVisible: false,
       grp_dialogVisible: false,
+      grp_dialog_title: '新增组织',
+      grp_oper_type: 0,
       grp_input: null,
       data_tree: [],
       cur_data_tree: null,
@@ -106,13 +108,12 @@ export default {
         });
       } else {
         var grps = response.data.data.list;
-        var tree = [];
         for (var n in grps) {
           var one = {};
           one.label = grps[n].name;
           one.id = grps[n].id;
           one.pid = grps[n].pid;
-          tree.push(one);
+          add_tree_raw_data(one);
         }
         /// 属性配置信息
         var attributes = {
@@ -125,27 +126,32 @@ export default {
           // 根节点标识
           rootKey: 0
         };
-        this.data_tree = convertTreeData(tree, attributes);
+        this.data_tree = convert_tree_raw_data2tree();
       }
     }).catch((err) => {
       this.$message({
         message: err.message,
         type: 'error',
-        duration: 5 * 1000
+        showClose: true,
+        duration: 3 * 1000
       });
     });
   },
   methods: {
-    OnEditGrp() {
-    },
-    OnAddGrp() {
-      this.grp_input = null;
-      this.grp_dialogVisible = true;
+    OnHandGrp() {
+      switch (this.grp_oper_type) {
+        case 0:
+          this.AddGrpReq();
+          break;
+        case 1:
+          this.UpdateGrpReq();
+          break;
+      }
     },
     AddGrpReq() {
       if (this.grp_input == null) {
         this.$message({
-          message: '请输入组织名称',
+          message: '组织名称不能为空',
           showClose: true,
           duration: 2 * 1000,
           type: 'warning'
@@ -153,12 +159,11 @@ export default {
         return;
       }
       var grp = {};
-      if (this.cur_data_tree == null) {
+      if (this.cur_data_tree == null || this.is_root_tree) {
         grp.pid = 0;
       } else {
         grp.pid = this.cur_data_tree.id;
       }
-      grp.tenantId = 1;
       grp.descr = '';
       grp.name = this.grp_input;
       addGroupReq(grp).then((response) => {
@@ -169,23 +174,112 @@ export default {
             duration: 2 * 1000,
             type: 'error'
           });
-          return;
         } else {
-          if (this.cur_data_tree == null) {
-            grp.id = response.data.data;
-            grp.children = [];
-            grp.label = grp.name;
+          grp.id = response.data.data;
+          grp.children = [];
+          grp.label = grp.name;
+          if (this.cur_data_tree == null || this.is_root_tree) {// 添加到根节点
             this.data_tree.push(grp);
+          } else {// 添加到子节点
+            this.cur_data_tree.children.push(grp);
           }
+          add_tree_raw_data(grp);
+        }
+        this.grp_dialogVisible = false;
+      }).catch((err) => {
+        this.$message({
+          message: err.message,
+          type: 'error',
+          showClose: true,
+          duration: 3 * 1000
+        });
+      });
+
+    },
+    UpdateGrpReq() {
+      if (this.grp_input == null) {
+        this.$message({
+          message: '组织名称不能为空',
+          showClose: true,
+          duration: 2 * 1000,
+          type: 'warning'
+        });
+        return;
+      }
+      var grp = {};
+      grp.id = this.cur_data_tree.id;
+      grp.pid = this.cur_data_tree.pid;
+      grp.descr = '';
+      grp.name = this.grp_input;
+      updateGroupReq(grp).then((response) => {
+        if (response.data.code != 0) {
+          this.$message({
+            message: response.data.msg,
+            showClose: true,
+            duration: 2 * 1000,
+            type: 'error'
+          });
+        } else {
+          edit_tree_raw_data(grp);
+          this.cur_data_tree.label = grp.name;
+        }
+        this.grp_dialogVisible = false;
+      }).catch((err) => {
+        this.$message({
+          message: err.message,
+          type: 'error',
+          showClose: true,
+          duration: 3 * 1000
+        });
+      });
+
+    },
+    OnDel() {
+      if (this.cur_data_tree == null) {
+        this.$message({
+          message: '请选择要删除的组织节点',
+          showClose: true,
+          duration: 2 * 1000,
+          type: 'warning'
+        });
+        return;
+      }
+      if (this.cur_data_tree.children.length > 0) {
+        this.$message({
+          message: '请先删除该组织下的从属节点',
+          showClose: true,
+          duration: 2 * 1000,
+          type: 'warning'
+        });
+        return;
+      }
+
+      delGroupReq(this.cur_data_tree.id).then((response) => {
+        if (response.data.code != 0) {
+          this.$message({
+            message: response.data.msg,
+            showClose: true,
+            duration: 2 * 1000,
+            type: 'error'
+          });
+        } else {
+          this.$message({
+            message: '删除 ' + this.cur_data_tree.label + ' 成功',
+            showClose: true,
+            duration: 2 * 1000,
+            type: 'success'
+          });
+          del_tree_raw_data(this.cur_data_tree);
+          this.data_tree = convert_tree_raw_data2tree();
         }
       }).catch((err) => {
         this.$message({
           message: err.message,
           type: 'error',
-          duration: 5 * 1000
+          showClose: true,
+          duration: 3 * 1000
         });
       });
-
     },
     scanSelectionChange(val) {
       this.scan_tb_selected = val;
@@ -197,19 +291,19 @@ export default {
       this.scan_tb = null;
       this.scan_dialogVisible = true;
       this.loading = true;
-      rtscan('1', '30000').then((response) => {
+      rtscan('1', '3000').then((response) => {
         try {
-        if(response.data instanceof Array ){
-          this.scan_tb = response.data;
-        }else{
-          this.$message({
-            message: response.data.msg,
-            showClose: true,
-            duration: 2 * 1000,
-            type: 'error'
-          });
-        }
-          
+          if (response.data instanceof Array) {
+            this.scan_tb = response.data;
+          } else {
+            this.$message({
+              message: response.data.msg,
+              showClose: true,
+              duration: 2 * 1000,
+              type: 'error'
+            });
+          }
+
         } catch (e) {
           this.$message({
             message: e.message,
@@ -220,14 +314,15 @@ export default {
         }
         this.loading = false;
       }).catch((err) => {
-      this.scan_dialogVisible = false;
-      this.loading = false;
-       this.$message({
+        this.scan_dialogVisible = false;
+        this.loading = false;
+        this.$message({
           message: err.message,
           type: 'error',
-          duration: 5 * 1000
+          showClose: true,
+          duration: 3 * 1000
         });
-        
+
       });
     },
     OnDevAdd() {
