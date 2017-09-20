@@ -68,7 +68,7 @@
 </template>
 <script>
 import { rtscan, getGroup, addGroupReq, updateGroupReq, delGroupReq } from '@/api/devmng'
-import { convert_tree_raw_data2tree,add_tree_raw_data,edit_tree_raw_data,del_tree_raw_data } from '@/utils/json2tree'
+import { init_tree_raw_data,convert_tree_raw_data2tree,add_tree_raw_data,edit_tree_raw_data,del_tree_raw_data } from '@/utils/json2tree'
 export default {
   data() {
     return {
@@ -107,6 +107,7 @@ export default {
           type: 'error'
         });
       } else {
+        init_tree_raw_data();
         var grps = response.data.data.list;
         for (var n in grps) {
           var one = {};

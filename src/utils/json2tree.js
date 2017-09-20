@@ -25,6 +25,9 @@
 }
 
 var tree_raw_data = [];
+export function init_tree_raw_data(node) {
+    tree_raw_data = [];
+}
 export function add_tree_raw_data(node) {
     tree_raw_data.push(node);
 }
